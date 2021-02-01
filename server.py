@@ -50,7 +50,6 @@ class server:
                     try:
                         if(len(self.users[id])==2):
                             raise Exception
-                        print('client joined')
                         self.users[id].append(self.socket_api)
                         self.handle.add(self.users[id],id)
                     except:
