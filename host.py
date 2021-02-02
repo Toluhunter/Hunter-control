@@ -12,26 +12,36 @@ class Host:
         self.socket_api=socket_obj
         id=self.socket_api.recv(12).decode('utf-8')
         print('Your id is',id)
-        self.socket_api.recv(1)
+        self.socket_api.recv(30)
         
-        return id
 
     def send_cmd(self,command):
-        command=command.encode()
+        command=command.encode('utf-8')
+        time.sleep(0.5)
         self.socket_api.send(command)
         output=self.socket_api.recv(2048).decode('utf-8')
         return output
-
+        
     @property
     def current_loc(self):
-        return self.send_cmd('pwd')
+        return self.send_cmd('pwd?ps1')
 
     def display_term(self):
         print('=================== Host Mode ===================')
         while True:
-            cmd=input(self.current_loc+'> ')
-            print(self.send_cmd(cmd))
-
+            time.sleep(0.4)
+            cwd=self.current_loc
+            if not cwd=='':
+                cmd=input(cwd+'> ')
+                response=self.send_cmd(cmd)
+                if response=='':
+                    print('Disconnected')
+                    break
+                print(response)
+            else:
+                print('Disconnected')
+                break
+            
 ap=argparse.ArgumentParser(prog='Hunter-control',description='A command line rdp for terminal')
 ap.parse_args()
 
@@ -39,7 +49,7 @@ ap.parse_args()
 ip=str(os.getenv('SERVER_IP'))
 
 host=Host('localhost')
-host_id=host.connect()
+host.connect()
 host.display_term()
 
 
