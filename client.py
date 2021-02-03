@@ -1,6 +1,5 @@
 import socket,time,re
 import subprocess,os
-import json
 class client:
     def __init__(self,ip):
         self.ip=ip
@@ -42,27 +41,32 @@ class client:
                 time.sleep(0.2)
                 self.socket_api.close()
                 break
-            elif re.search(r'^cd (.+)',cmd):
-                for match in re.finditer(r'^cd (.+)',cmd):
-                    cmd=match.group(1)
-                print(cmd)
-                try:
-                    os.chdir(cmd)
-                    response='command executed with return code 0\n'.encode('utf-8')
-                except:
-                    response=f'command executed with return code 127\nno directory with the name {cmd}\n'.encode('utf-8')
-                finally:
-                    self.socket_api.send(response)
+            
             else:
                 if not choice=='a':
                     print('\ncommand: '+cmd)
                     choice=input('Do you wish to allow this command to run on your system\n(Y/y=yes N/n=no A/a=allow no confirmation ): ')
                     choice=choice[0].lower()
                 if choice=='a' or choice=='y':
-                    response=self.check_cmd(cmd)
-                    response_str=response.decode('utf-8')
-                    print(f'\n{response_str}')
-                    self.socket_api.send(response)
+                    if re.search(r'^cd (.+)',cmd) or cmd=='cd':
+                        print(cmd)
+                        for match in re.finditer(r'^cd (.+)',cmd):
+                            cmd=match.group(1)
+                        
+                        try:
+                            os.chdir(cmd)
+                            response='command executed with return code 0\n'.encode('utf-8')
+                        except:
+                            response=f'command executed with return code 127\nno directory with the name {cmd}\n'.encode('utf-8')
+                        finally:
+                            self.socket_api.send(response)
+                    else:
+                        print('\ncommand: '+cmd)
+                        response=self.check_cmd(cmd)
+                        response_str=response.decode('utf-8')
+                        print(f'\n{response_str}')
+                        print('='*30)
+                        self.socket_api.send(response)
                 else:
                     print(cmd+' (DENIED)')
                     self.socket_api.send('command Denied by client'.encode('utf-8'))
@@ -72,7 +76,7 @@ def main():
         print('Invalid input please try agin')
         id=input('Input id:')
     ip=os.getenv('SERVER_IP')
-    client_obj=client('localhost')
+    client_obj=client(ip)
     if client_obj.connect(id):
         client_obj.run_cmd()
     else:

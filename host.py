@@ -1,6 +1,6 @@
 import socket,time
 import os,argparse
-import json,select
+import select
 class Host:
     def __init__(self,ip):
         self.ip=ip
@@ -18,7 +18,7 @@ class Host:
     def send_cmd(self,command):
         output=''
         if command!='exit':
-            timeout=12000000
+            timeout=120
         else:
             timeout=2
         command=command.encode('utf-8')
@@ -27,7 +27,10 @@ class Host:
         while True:
             response,_,_=select.select([self.socket_api],[],[],timeout)
             if response:
-                output+=self.socket_api.recv(2048).decode('utf-8')
+                out=self.socket_api.recv(2048).decode('utf-8')
+                if out=='':
+                    break
+                output=out
                 timeout=1
             else:
                 break
@@ -64,7 +67,7 @@ ap.parse_args()
 #Replace with your own ip
 ip=str(os.getenv('SERVER_IP'))
 
-host=Host('localhost')
+host=Host(ip)
 host.connect()
 host.display_term()
 

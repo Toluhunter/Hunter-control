@@ -8,7 +8,7 @@ class server:
         self.handle=handle.Handler(self)
         self.s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.s.setblocking(False)
-        self.s.bind(('localhost',8890))
+        self.s.bind((socket.gethostbyname(''),8890))
         self.s.listen(4)
         
         self.thread=exec.ThreadPoolExecutor(max_workers=1)
@@ -28,6 +28,8 @@ class server:
             confirm=input('are you sure you wish to shutdown sever y/n:')
             if confirm=='y':
                 self.accepting=False
+                print('\nshutting down server this can take up to 2 minutes please wait')
+                time.sleep(0.5)
                 
 
         
@@ -60,6 +62,7 @@ class server:
                         self.socket_api.close()
             except:
                 pass
+        print('Connections will no longer be accepted')
             
 
     def generate_id(self):
