@@ -1,5 +1,6 @@
 import socket,time,re
 import subprocess,os
+import json
 class client:
     def __init__(self,ip):
         self.ip=ip
@@ -16,11 +17,12 @@ class client:
         self.socket_api=socket_obj
         return True
     def check_cmd(self,cmd):
-        if cmd=='pwd?ps1':
-            return os.getcwd().encode('utf-8')
-            
-        if cmd=='ls' or cmd=='dir':
-            return os.listdir()
+        responses=subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        responses.wait()
+        for response in responses.communicate():
+            if response:
+                return response
+        return 'command executed with return code 0\n'.encode('utf-8')
         
     def run_cmd(self):
         choice=''
@@ -33,13 +35,34 @@ class client:
             elif cmd=='pwd?ps1':
                 response=os.getcwd().encode('utf-8')
                 self.socket_api.send(response)
+            elif cmd=='exit':
+                print('Disconnected')
+                response=f'command executed with return code 0 {cmd}\n'.encode('utf-8')
+                self.socket_api.send(response)
+                time.sleep(0.2)
+                self.socket_api.close()
+                break
+            elif re.search(r'^cd (.+)',cmd):
+                for match in re.finditer(r'^cd (.+)',cmd):
+                    cmd=match.group(1)
+                print(cmd)
+                try:
+                    os.chdir(cmd)
+                    response='command executed with return code 0\n'.encode('utf-8')
+                except:
+                    response=f'command executed with return code 127\nno directory with the name {cmd}\n'.encode('utf-8')
+                finally:
+                    self.socket_api.send(response)
             else:
                 if not choice=='a':
                     print('\ncommand: '+cmd)
                     choice=input('Do you wish to allow this command to run on your system\n(Y/y=yes N/n=no A/a=allow no confirmation ): ')
                     choice=choice[0].lower()
                 if choice=='a' or choice=='y':
-                    self.socket_api.send(self.check_cmd(cmd))
+                    response=self.check_cmd(cmd)
+                    response_str=response.decode('utf-8')
+                    print(f'\n{response_str}')
+                    self.socket_api.send(response)
                 else:
                     print(cmd+' (DENIED)')
                     self.socket_api.send('command Denied by client'.encode('utf-8'))

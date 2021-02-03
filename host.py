@@ -1,6 +1,6 @@
 import socket,time
 import os,argparse
-
+import json,select
 class Host:
     def __init__(self,ip):
         self.ip=ip
@@ -16,10 +16,21 @@ class Host:
         
 
     def send_cmd(self,command):
+        output=''
+        if command!='exit':
+            timeout=12000000
+        else:
+            timeout=2
         command=command.encode('utf-8')
         time.sleep(0.5)
-        self.socket_api.send(command)
-        output=self.socket_api.recv(2048).decode('utf-8')
+        res=self.socket_api.send(command)
+        while True:
+            response,_,_=select.select([self.socket_api],[],[],timeout)
+            if response:
+                output+=self.socket_api.recv(2048).decode('utf-8')
+                timeout=1
+            else:
+                break
         return output
         
     @property
@@ -38,6 +49,11 @@ class Host:
                     print('Disconnected')
                     break
                 print(response)
+                if cmd=='exit':
+                    time.sleep(0.2)
+                    self.socket_api.close()
+                    print('Disconnected')
+                    break
             else:
                 print('Disconnected')
                 break

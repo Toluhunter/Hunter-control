@@ -24,6 +24,7 @@ class server:
     def close(self):
         while (self.accepting):
             input('Enter any key to shutdown server...')
+            # print(self.users)
             confirm=input('are you sure you wish to shutdown sever y/n:')
             if confirm=='y':
                 self.accepting=False
@@ -36,7 +37,7 @@ class server:
             
             try:
                 self.socket_api,self.addr=self.s.accept()
-            
+                
                 user_type=self.recv(11).split(':')
             
                 if user_type[0]=='host':
