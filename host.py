@@ -1,6 +1,6 @@
 import socket,time
 import os,argparse
-import select
+import select,ssl
 
 class Host:
     def __init__(self,ip):
@@ -9,7 +9,15 @@ class Host:
 
     def connect(self):
         socket_obj=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        socket_obj.connect((self.ip,8890))
+        
+        #attempt to connect to server
+        try:
+            socket_obj.connect((self.ip,8890))
+        except ConnectionRefusedError:
+            print("Server is currently not active\nplease startup server code on your designated server")
+            socket_obj.close()
+            return False
+
         socket_obj.send('host'.encode('utf-8'))
         self.socket_api=socket_obj
 
@@ -88,16 +96,29 @@ class Host:
                 break
             
 
-#Replace with your own ip
-ip=str(os.getenv('SERVER_IP'))
-host=Host(ip)
-#returns empty string if server is shutdown or id timesout
-status=host.connect()
+def main():
+    #checks for active internet connection
+    try:
+        test_internet=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        test_internet=ssl.wrap_socket(test_internet)
+        test_internet.connect(("google.com",443))
+        test_internet.close()
+        
+    except socket.gaierror:
+        print("This program requires an active internet connection\nCheck your connection and try again")
+        return
 
-if status:
-    host.display_term()
-else:
-    print('Disconnected')
+    #Replace with your own ip
+    ip=os.getenv('SERVERIP')
+    host=Host(ip)
+    #returns empty string if server is shutdown or id timesout
+    status=host.connect()
 
+    if status:
+        host.display_term()
+    else:
+        print('Disconnected')
 
+if __name__=="__main__":
+    main()
 

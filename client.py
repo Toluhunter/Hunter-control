@@ -1,9 +1,11 @@
 import socket,time,re
-import subprocess,os
+import subprocess,os,ssl
+import concurrent.futures as exec
 class client:
     def __init__(self,ip):
         self.ip=ip
-
+        self.animating=False
+        self.thread=exec.ThreadPoolExecutor()
 
     def connect(self,id='0000'):
         socket_obj=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -32,6 +34,30 @@ class client:
 
         #returns if command doesnt have output or error
         return 'command executed with return code 0\n'.encode('utf-8')
+
+   
+    def awaiting_animation(self):
+        time.sleep(2)
+        while (self.animating):
+            print('awaiting command'+' '*30,end="\r")
+            if(not self.animating):
+                break
+            time.sleep(0.8)
+
+            print('awaiting command.'+' '*30,end="\r")
+            if(not self.animating):
+                break
+            time.sleep(0.8)
+
+            print('awaiting command..'+' '*30,end="\r")
+            if(not self.animating):
+                break
+            time.sleep(0.8)
+
+            print('awaiting command...'+' '*30,end="\r")
+            if(not self.animating):
+                break
+            time.sleep(0.8)
         
 
     def display(self):
@@ -39,7 +65,10 @@ class client:
         print('==================== client mode ==================')
 
         while True:
+            self.thread.submit(self.awaiting_animation)
             cmd=self.socket_api.recv(1024).decode('utf-8')
+            self.animating=False
+            time.sleep(1)
 
             if cmd=='':
                 print('Disconnected')
@@ -105,9 +134,20 @@ class client:
                 else:
                     print(cmd+' (DENIED)')
                     self.socket_api.send('command Denied by client'.encode('utf-8'))
+            self.animating=True
 
 
 def main():
+    #checks for active internet connection
+    try:
+        test_internet=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        test_internet=ssl.wrap_socket(test_internet)
+        test_internet.connect(("google.com",443))
+        test_internet.close()
+    except socket.gaierror:
+        print("This program requires an active internet connection\nCheck your connection and try again")
+        return
+
     id=input('Input id:')
 
     while(not re.match(r'^[1-9]{1}\d{3}$',id)):
@@ -115,7 +155,7 @@ def main():
         id=input('Input id:')
 
     #Replace with your Server Ip
-    ip=os.getenv('SERVER_IP')
+    ip=os.getenv('SERVERIP')
     client_obj=client(ip)
     status=client_obj.connect(id)
 
