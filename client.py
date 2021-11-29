@@ -18,12 +18,13 @@ class client:
 
         self.ip = ip
         self.animating = True
+        self.check_network()
 
 
     def check_network(self):
         ''' checks for active internet connection '''
         try:
-            test_internet = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+            test_internet = socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
             test_internet = ssl.wrap_socket(test_internet)
             test_internet.connect(("google.com", 443))
             test_internet.close()
@@ -31,9 +32,7 @@ class client:
         except socket.gaierror:
             print('{self.RED}This program requires an active internet connection')
             print('Check your connection and try again {self.RESET}')
-            return False
-        else:
-            return True
+            exit(2)
 
 
     def connect(self, id='0000'):
@@ -188,16 +187,14 @@ class client:
 
 def main():
 
-    ip = os.getenv('SERVER')
-    if not ip:
-        ip = input("Enter your IP address: ")
+    IP = os.getenv('SERVER')
+    if not IP:
+        IP = input("Enter your IP address: ")
 
-    client_obj = client(ip)
+    client_obj = client(IP)
     
     # Ends program if theres no internet connection
-    if not client_obj.check_network():
-        exit(2)
-
+    
     id = input('Input id: ')
 
     while(not re.match(r'^[1-9]{1}\d{3}$', id)):
