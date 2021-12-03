@@ -1,4 +1,6 @@
 # Hunter control
+**Version Beta 1.1**
+
 A Terminal program to allow users connect to remote clients 
 
 ---
