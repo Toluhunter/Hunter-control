@@ -22,5 +22,6 @@ Client: This is the file that will be run the client, they will be prompted for 
 Toluhunter https://www.linkedin.com/in/tolulope-fakoya-775550224/
 
 # License & Copyright
+This program is licensed under the <a href="https://github.com/Toluhunter/Hunter-control/blob/main/LICENSE">BSD-2-Clause License</a>. Please note other third party frameworks may be licensed under different licenses
 
-ⒸToluhunter
+Copyright Ⓒ 2021 Toluhunter
