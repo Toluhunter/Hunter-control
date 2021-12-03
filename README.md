@@ -2,7 +2,7 @@
 A Terminal program to allow users connect to remote clients 
 
 ---
-A Terminal based program to allow multiple users and clients connect seemlessly, and have multiple independent sessions which allow the trade of commands and responses accross a remote network, the server IP is to be provided by the the user, team, organization e.t.c.
+A Terminal based program to allow multiple users and clients connect seamlessly, and have multiple independent sessions which allow the trade of commands and responses across a remote network, the server IP is to be provided by the the user, team, organization e.t.c.
 
 # How It Works
 Hunter Control is split into four main parts the server side, connectionhandler, client side and user/host side,  each side is designed to take part in a full session connection
