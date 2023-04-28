@@ -3,7 +3,7 @@ import socket,random,time
 import colorama
 from platform import system
 from threading import Thread
-from Connection.ConnectionsHandler import Handler
+from connection.handler import Handler
 
 class Server:
     def __init__(self):
