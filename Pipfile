@@ -4,8 +4,11 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+colorama = "*"
+argparse = "*"
 
 [dev-packages]
+autopep8 = "*"
 
 [requires]
-python_version = "3.9"
+python_version = ">=3.8"
